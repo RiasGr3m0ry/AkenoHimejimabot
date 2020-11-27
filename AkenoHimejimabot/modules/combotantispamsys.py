@@ -7,7 +7,7 @@ import AkenoHimejimabot.modules.helper_funcs.cas_api as cas
 from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton, MessageEntity
 from telegram.error import BadRequest
 from AkenoHimejimabot import dispatcher, OWNER_ID, DEV_USERS, DRAGONS, DEMONS, TIGERS, WOLVES, LOGGER
-from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler
+from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler ,CallbackContext,CommandHandler
 from telegram.utils.helpers import mention_markdown, mention_html, escape_markdown
 
 import AkenoHimejimabot.modules.sql.welcome_sql as sql
@@ -27,7 +27,7 @@ from AkenoHimejimabot.modules.log_channel import loggable
 
 @run_async
 @user_admin
-def setcas(bot: Bot, update: Update):
+def setcas(update: Update, context: CallbackContext):
     chat = update.effective_chat
     msg = update.effective_message
     split_msg = msg.text.split(' ')
@@ -49,7 +49,7 @@ def setcas(bot: Bot, update: Update):
 
 @run_async
 @user_admin
-def setban(bot: Bot, update: Update):
+def setban(update: Update, context: CallbackContext):
     chat = update.effective_chat
     msg = update.effective_message
     split_msg = msg.text.split(' ')
@@ -71,7 +71,7 @@ def setban(bot: Bot, update: Update):
 
 @run_async
 @user_admin
-def get_current_setting(bot: Bot, update: Update):
+def get_current_setting(update: Update, context: CallbackContext):
     chat = update.effective_chat
     msg = update.effective_message
     stats = sql.get_cas_status(chat.id)
@@ -82,7 +82,7 @@ def get_current_setting(bot: Bot, update: Update):
 
 @run_async
 @user_admin
-def getTimeSetting(bot: Bot, update: Update):
+def getTimeSetting(update: Update, context: CallbackContext)
     chat = update.effective_chat
     msg = update.effective_message
     timeSetting = sql.getKickTime(chat.id)
@@ -91,8 +91,8 @@ def getTimeSetting(bot: Bot, update: Update):
     return
 
 @run_async
-@user_admin
-def setTimeSetting(bot: Bot, update: Update, args: List[str]):
+def setTimeSetting(update, context) -> str:
+    args = context.args
     chat = update.effective_chat
     msg = update.effective_message
     if (not args) or len(args) != 1 or (not args[0].isdigit()):
@@ -107,15 +107,17 @@ def setTimeSetting(bot: Bot, update: Update, args: List[str]):
     return
 
 @run_async
-def get_version(bot: Bot, update: Update):
+def get_version(update: Update, context: CallbackContext):
     msg = update.effective_message
     ver = cas.vercheck()
     msg.reply_text("CAS API version: "+ver)
     return
 
 @run_async
-def caschecker(bot: Bot, update: Update, args: List[str]):
+def caschecker(update: Update, context: CallbackContext) -> str:
     #/info logic
+    bot = context.bot
+    args = context.args
     msg = update.effective_message  # type: Optional[Message]
     user_id = extract_user(update.effective_message, args)
     if user_id and int(user_id) != 777000:
@@ -163,7 +165,9 @@ def caschecker(bot: Bot, update: Update, args: List[str]):
 #this sends direct request to combot server. Will return true if user is banned, false if
 #id invalid or user not banned
 @run_async
-def casquery(bot: Bot, update: Update, args: List[str]):
+def casquery(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     msg = update.effective_message  # type: Optional[Message]
     try:
         user_id = msg.text.split(' ')[1]
@@ -177,7 +181,9 @@ def casquery(bot: Bot, update: Update, args: List[str]):
 
 
 @run_async
-def gbanChat(bot: Bot, update: Update, args: List[str]):
+def gbanChat(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     if args and len(args) == 1:
         chat_id = str(args[0])
         del args[0]
@@ -202,7 +208,9 @@ def gbanChat(bot: Bot, update: Update, args: List[str]):
         update.effective_message.reply_text("Give me a valid chat id!") 
 
 @run_async
-def ungbanChat(bot: Bot, update: Update, args: List[str]):
+def ungbanChat(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     if args and len(args) == 1:
         chat_id = str(args[0])
         del args[0]
@@ -224,7 +232,10 @@ def ungbanChat(bot: Bot, update: Update, args: List[str]):
 
 @run_async
 @user_admin
-def setDefense(bot: Bot, update: Update, args: List[str]):
+def setDefense(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
+
     chat = update.effective_chat
     msg = update.effective_message
     if len(args)!=1:
@@ -245,7 +256,10 @@ def setDefense(bot: Bot, update: Update, args: List[str]):
 
 @run_async
 @user_admin
-def getDefense(bot: Bot, update: Update):
+def getDefense(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
+
     chat = update.effective_chat
     msg = update.effective_message
     stat = sql.getDefenseStatus(chat.id)
@@ -269,7 +283,9 @@ ABOUT_CAS = "<b>Combot Anti-Spam System (CAS)</b>" \
             "\n<i>If a CAS ban is determined to have been issued incorrectly, it will automatically be removed.</i>"
 
 @run_async
-def about_cas(bot: Bot, update: Update):
+def about_cas(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     user = update.effective_message.from_user
     chat = update.effective_chat  # type: Optional[Chat]
 
